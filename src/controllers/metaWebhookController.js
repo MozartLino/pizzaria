@@ -5,7 +5,7 @@ const { applyAiResponse } = require("../services/orderService");
 const { lookupCep } = require("../services/cepService");
 const { computeNextQuestion, detectEscalation } = require("../utils/validator");
 const { buildConfirmationMessage, buildSupportMessage, buildOrderSummaryLine } = require("../utils/promptBuilder");
-const { sendMessage, sendImage } = require("../services/metaService");
+const { sendMessage } = require("../services/metaService");
 
 // GET /meta/webhook — verificação do webhook pela Meta
 function metaVerify(req, res) {
@@ -42,12 +42,7 @@ async function metaWebhook(req, res) {
 
     if (!messageText) return; // ignora áudio, imagem, etc.
 
-    const isFirstMessage = !getSession(userId).messages.length;
     const responseText = await processMessage(userId, messageText);
-
-    if (isFirstMessage && process.env.MENU_IMAGE_URL) {
-      await sendImage(userId, process.env.MENU_IMAGE_URL, "Cardápio");
-    }
 
     await sendMessage(userId, responseText);
   } catch (error) {
